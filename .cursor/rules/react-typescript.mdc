@@ -1,0 +1,64 @@
+---
+description: React + TypeScript паттерны — компоненты, хуки, типизация
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# React + TypeScript паттерны
+
+## Компоненты
+
+```tsx
+// ✅ Именованный экспорт, явные пропсы, без React.FC
+interface MessageCardProps {
+  message: Message;
+  onDelete?: (id: string) => void;
+}
+
+export function MessageCard({ message, onDelete }: MessageCardProps) {
+  return <div>{message.text}</div>;
+}
+
+// ❌ Запрещено
+const MessageCard: React.FC<Props> = (props) => { ... };
+export default MessageCard;
+```
+
+## Кастомные хуки
+
+- Хук — отдельный файл `use-feature-name.ts` в директории `model/`
+- Возвращать объект `{}`, не массив `[]` (кроме семантических пар)
+
+```tsx
+// ✅
+export function useMessageList(chatId: string) {
+  const { data, isLoading, error } = useMessages(chatId);
+  return { messages: data, isLoading, error };
+}
+```
+
+## Типизация событий
+
+```tsx
+// ✅
+function handleChange(e: React.ChangeEvent<HTMLInputElement>) { ... }
+function handleSubmit(e: React.FormEvent<HTMLFormElement>) { ... }
+function handleClick(e: React.MouseEvent<HTMLButtonElement>) { ... }
+```
+
+## Условный рендеринг
+
+```tsx
+// ✅ Явный null вместо &&-цепочки с числами
+{isLoading ? <Spinner /> : null}
+{items.length > 0 ? <List items={items} /> : <EmptyState />}
+
+// ❌ Может отрендерить "0"
+{items.length && <List />}
+```
+
+## Запрещено
+
+- `useEffect` для синхронизации состояния — использовать `useMemo` / производные значения
+- Мутировать state напрямую
+- Инлайн-объекты в JSX как пропсы (создают лишние ре-рендеры)

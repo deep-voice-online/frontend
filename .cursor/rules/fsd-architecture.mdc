@@ -1,0 +1,63 @@
+---
+description: Feature-Sliced Design — структура директорий, слои, правила импортов
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Feature-Sliced Design (FSD)
+
+## Структура `src/`
+
+```
+src/
+├── app/          # Инициализация: провайдеры, роутер, глобальные стили
+├── pages/        # Страницы — только компоновка виджетов
+├── widgets/      # Самостоятельные UI-блоки (Header, Sidebar, ChatList)
+├── features/     # Пользовательские сценарии (send-message, auth-by-email)
+├── entities/     # Бизнес-сущности (user, message, chat)
+├── shared/       # Переиспользуемый код без бизнес-логики
+│   ├── api/      # Базовый клиент, конфиги запросов
+│   ├── config/   # Константы, env-переменные
+│   ├── lib/      # Утилиты, хелперы
+│   ├── types/    # Общие TypeScript-типы
+│   └── ui/       # Базовые UI-компоненты (кнопки, инпуты из shadcn)
+```
+
+## Правила слоёв (строго сверху вниз)
+
+`app` → `pages` → `widgets` → `features` → `entities` → `shared`
+
+- Слой **не может** импортировать из вышестоящего слоя
+- Слой **может** импортировать только из нижестоящих слоёв
+- Перекрёстные импорты внутри одного слоя — запрещены
+
+## Структура слайса
+
+```
+features/send-message/
+├── ui/           # Компоненты фичи
+├── model/        # Zustand store, хуки, бизнес-логика
+├── api/          # TanStack Query хуки для этой фичи
+├── lib/          # Утилиты фичи
+└── index.ts      # Публичный API — только то, что нужно снаружи
+```
+
+## Правила импортов
+
+```typescript
+// ✅ Импортируем через публичный API слайса
+import { SendMessageForm } from '@/features/send-message';
+import { MessageCard } from '@/entities/message';
+import { Button } from '@/shared/ui';
+
+// ❌ Запрещено — прямой импорт внутренностей
+import { SendMessageForm } from '@/features/send-message/ui/SendMessageForm';
+```
+
+## Path aliases (vite.config.ts)
+
+```typescript
+resolve: {
+  alias: { '@': '/src' }
+}
+```

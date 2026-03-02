@@ -1,0 +1,29 @@
+---
+description: Общий обзор проекта Whisper Frontend — стек технологий и ключевые соглашения
+alwaysApply: true
+---
+
+# Whisper Frontend — обзор проекта
+
+## Стек технологий
+
+- **Framework**: React 19 + Vite 7
+- **Language**: TypeScript (strict mode)
+- **Architecture**: Feature-Sliced Design (FSD)
+- **UI**: shadcn/ui + Tailwind CSS v4 (подключён через `@tailwindcss/vite`, без `tailwind.config.ts`)
+- **Icons**: Lucide React
+- **Data Fetching**: TanStack Query v5
+- **API (основной)**: GraphQL через `graphql-request` + codegen
+- **API (REST)**: Axios (для отдельных эндпоинтов вне GraphQL)
+- **State Management**: Zustand v5
+- **Routing**: React Router v7
+
+## Общие правила
+
+- Все файлы компонентов — `.tsx`, вспомогательный код — `.ts`
+- Именование файлов компонентов — `PascalCase.tsx`, хуков — `use-kebab-case.ts`
+- Именование директорий — `kebab-case`
+- Запрещены `any` и `@ts-ignore` без объяснения причины в комментарии
+- Предпочитать именованные экспорты вместо `export default`
+- Не использовать `React.FC` — явно типизировать пропсы через `interface`
+- Каждый публичный API слоя/сегмента экспортировать через `index.ts`

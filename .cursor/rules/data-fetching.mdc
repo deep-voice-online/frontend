@@ -1,0 +1,157 @@
+---
+description: Data Fetching паттерны — GraphQL (основной), REST/Axios, TanStack Query v5
+globs: src/**/{api,model}/*.ts
+alwaysApply: false
+---
+
+# Data Fetching: GraphQL + REST + TanStack Query v5
+
+## Транспорт
+
+| Тип запроса | Клиент | Когда использовать |
+|-------------|--------|-------------------|
+| GraphQL | `graphql-request` + codegen | Основной API (большинство запросов) |
+| REST | Axios | Только для специфичных эндпоинтов вне GraphQL |
+
+---
+
+## GraphQL (основной путь)
+
+### Клиент
+
+Базовый GraphQL-клиент — `src/shared/api/graphql-client.ts`:
+
+```typescript
+import { GraphQLClient } from 'graphql-request';
+
+export const gqlClient = new GraphQLClient(
+  import.meta.env.VITE_GRAPHQL_URL ?? 'https://gql.deep-voice.online/',
+  { credentials: 'include' }
+);
+```
+
+### Codegen
+
+Типы и хуки генерируются из схемы через `@graphql-codegen/cli`.  
+Конфиг — `codegen.ts` в корне. Схема — `https://gql.deep-voice.online/`.  
+Запуск: `npm run codegen` (однократно) или `npm run codegen:watch` (в режиме наблюдения).
+
+```
+src/shared/api/
+├── graphql-client.ts     # GraphQL клиент
+├── generated/            # Автогенерированные типы и операции (не редактировать вручную)
+│   ├── types.ts
+│   └── operations.ts
+└── query-keys.ts         # TanStack Query keys
+```
+
+### Операции
+
+GraphQL-документы (`.graphql`) размещать рядом с хуком в `api/` слайса:
+
+```
+features/send-message/
+└── api/
+    ├── send-message.graphql
+    └── use-send-message.ts
+```
+
+### Запросы через TanStack Query
+
+```typescript
+// features/message-list/api/use-messages.ts
+import { useQuery } from '@tanstack/react-query';
+import { gqlClient } from '@/shared/api/graphql-client';
+import { GetMessagesDocument } from '@/shared/api/generated/operations';
+import { messageKeys } from '@/shared/api/query-keys';
+
+export function useMessages(chatId: string) {
+  return useQuery({
+    queryKey: messageKeys.byChat(chatId),
+    queryFn: () => gqlClient.request(GetMessagesDocument, { chatId }),
+    enabled: Boolean(chatId),
+    staleTime: 30_000,
+  });
+}
+```
+
+### Мутации через TanStack Query
+
+```typescript
+// features/send-message/api/use-send-message.ts
+export function useSendMessage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (dto: SendMessageInput) =>
+      gqlClient.request(SendMessageDocument, { input: dto }),
+    onSuccess: (_, { chatId }) => {
+      queryClient.invalidateQueries({ queryKey: messageKeys.byChat(chatId) });
+    },
+  });
+}
+```
+
+---
+
+## REST / Axios (вспомогательный)
+
+Axios-клиент — `src/shared/api/rest-client.ts`. Использовать только для эндпоинтов,
+которые недоступны через GraphQL (например, загрузка файлов, OAuth-редиректы).
+
+```typescript
+// src/shared/api/rest-client.ts
+import axios from 'axios';
+
+export const restClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
+});
+
+restClient.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    // централизованная обработка ошибок
+    return Promise.reject(err);
+  }
+);
+```
+
+REST-хуки так же оборачиваются в TanStack Query:
+
+```typescript
+// features/upload-file/api/use-upload-file.ts
+export function useUploadFile() {
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append('file', file);
+      return restClient.post('/upload', form);
+    },
+  });
+}
+```
+
+---
+
+## Query Keys
+
+Централизованные query keys — `src/shared/api/query-keys.ts`:
+
+```typescript
+export const messageKeys = {
+  all: ['messages'] as const,
+  byChat: (chatId: string) => [...messageKeys.all, chatId] as const,
+  detail: (id: string) => [...messageKeys.all, 'detail', id] as const,
+};
+```
+
+---
+
+## Общие правила
+
+- `staleTime` выставлять явно — не полагаться на дефолт `0`
+- Оптимистичные обновления — через `onMutate` + `onError` rollback
+- Пагинацию реализовывать через `useInfiniteQuery`
+- Не дублировать серверное состояние в Zustand
+- Автогенерированные файлы из `generated/` — не редактировать вручную

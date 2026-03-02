@@ -1,0 +1,135 @@
+---
+description: UI-соглашения — shadcn/ui, Tailwind CSS, Lucide React иконки
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# UI: shadcn/ui + Tailwind CSS + Lucide React
+
+## shadcn/ui
+
+- Компоненты shadcn живут в `src/shared/ui/` (генерируются через `npx shadcn@latest add`)
+- Не редактировать сгенерированные компоненты напрямую — расширять через обёртки
+- Использовать `cn()` из `src/shared/lib/cn.ts` для объединения классов
+
+```tsx
+// src/shared/lib/cn.ts
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// ✅ Использование
+<Button className={cn('w-full', isLoading && 'opacity-50')} />
+```
+
+## Tailwind CSS
+
+- Не использовать инлайн-стили `style={{}}` — только классы Tailwind
+- Адаптив: mobile-first (`sm:`, `md:`, `lg:`)
+- Цвета и токены только из темы (`bg-background`, `text-foreground`, `border-border`)
+- Кастомные значения через `[]` только при крайней необходимости
+
+```tsx
+// ✅
+<div className="flex flex-col gap-4 p-4 bg-card rounded-lg border border-border">
+
+// ❌
+<div style={{ display: 'flex', padding: '16px' }}>
+```
+
+## Адаптивность (Responsive Design)
+
+Приложение должно одинаково хорошо работать на мобильном (≥320px) и на ноутбуке (≥1280px).
+
+### Брейкпоинты
+
+| Prefix | Min-width | Устройство |
+|--------|-----------|------------|
+| _(нет)_ | 0px | Мобильный (base) |
+| `sm:` | 640px | Большой телефон / планшет вертикально |
+| `md:` | 768px | Планшет горизонтально |
+| `lg:` | 1024px | Ноутбук |
+| `xl:` | 1280px | Десктоп |
+
+### Лейаут чата (специфика Whisper)
+
+На мобильном — одна панель (список или чат), на ноутбуке — две колонки:
+
+```tsx
+// ✅ Sidebar + Chat layout
+<div className="flex h-svh">
+  {/* Sidebar — скрыт на мобильном, виден на lg+ */}
+  <aside className="hidden lg:flex lg:w-72 xl:w-80 flex-col border-r border-border">
+    <ChatList />
+  </aside>
+
+  {/* Основная область */}
+  <main className="flex-1 flex flex-col min-w-0">
+    <ChatWindow />
+  </main>
+</div>
+```
+
+### Типография и отступы
+
+```tsx
+// ✅ Масштабируемые размеры
+<h1 className="text-xl lg:text-2xl font-semibold">
+<p className="text-sm lg:text-base text-muted-foreground">
+<div className="p-3 lg:p-6">
+```
+
+### Touch-зоны на мобильном
+
+- Минимальный размер tap-target — `min-h-11` (44px) на мобильном
+- Кнопки и иконки-действия — `p-2.5 lg:p-2`
+
+```tsx
+// ✅
+<button className="flex items-center justify-center min-h-11 min-w-11 lg:min-h-8 lg:min-w-8 rounded-md">
+  <Send className="w-5 h-5" aria-hidden="true" />
+</button>
+```
+
+### Модалки и Sheet
+
+- На мобильном — использовать `Sheet` (shadcn) снизу вместо `Dialog`
+- На ноутбуке — стандартный `Dialog` по центру
+
+```tsx
+// ✅ Адаптивная панель
+const isMobile = useMediaQuery('(max-width: 1023px)');
+return isMobile
+  ? <Sheet><SheetContent side="bottom">...</SheetContent></Sheet>
+  : <Dialog>...</Dialog>;
+```
+
+### Запрещено
+
+- Фиксированные ширины без брейкпоинтов: `w-[320px]` → лучше `w-full lg:w-80`
+- `overflow: hidden` на корневых контейнерах без `min-w-0`
+- Горизонтальный скролл страницы (`overflow-x: auto` только внутри таблиц/кода)
+
+## Lucide React иконки
+
+- Импортировать иконки из `lucide-react` по имени
+- Размер задавать через `size` prop или классы `w-4 h-4`
+- Всегда добавлять `aria-hidden="true"` для декоративных иконок
+
+```tsx
+// ✅
+import { Send, Paperclip, X } from 'lucide-react';
+
+<Send size={16} aria-hidden="true" />
+<Send className="w-4 h-4" aria-hidden="true" />
+
+// ❌ Не задавать размер через style
+<Send style={{ width: 16 }} />
+```
+
+## Темизация
+
+- Поддерживать dark/light режим через CSS-переменные shadcn
+- Классы `dark:` использовать только если переменная не покрывает случай

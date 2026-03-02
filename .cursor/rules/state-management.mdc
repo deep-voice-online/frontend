@@ -1,0 +1,66 @@
+---
+description: State Management паттерны с Zustand v5
+globs: src/**/model/*.ts
+alwaysApply: false
+---
+
+# State Management: Zustand v5
+
+## Расположение
+
+- Store создаётся в `model/` соответствующего слайса
+- Один слайс — один store (не глобальный god-store)
+- Глобальное состояние (auth, theme) — `src/app/model/`
+
+## Структура store
+
+```typescript
+// features/chat/model/use-chat-store.ts
+interface ChatState {
+  activeChatId: string | null;
+  setActiveChatId: (id: string | null) => void;
+  draftMessages: Record<string, string>;
+  setDraft: (chatId: string, text: string) => void;
+  clearDraft: (chatId: string) => void;
+}
+
+export const useChatStore = create<ChatState>()((set) => ({
+  activeChatId: null,
+  setActiveChatId: (id) => set({ activeChatId: id }),
+  draftMessages: {},
+  setDraft: (chatId, text) =>
+    set((s) => ({ draftMessages: { ...s.draftMessages, [chatId]: text } })),
+  clearDraft: (chatId) =>
+    set((s) => {
+      const { [chatId]: _, ...rest } = s.draftMessages;
+      return { draftMessages: rest };
+    }),
+}));
+```
+
+## Селекторы — подписка только на нужное
+
+```typescript
+// ✅ Компонент ре-рендерится только при изменении activeChatId
+const activeChatId = useChatStore((s) => s.activeChatId);
+
+// ❌ Ре-рендер при любом изменении store
+const store = useChatStore();
+```
+
+## Правила
+
+- Серверные данные (списки, детали) — НЕ хранить в Zustand, это зона TanStack Query
+- В Zustand — только UI-состояние: активные элементы, модалки, черновики, фильтры
+- Использовать `immer` middleware для сложных вложенных обновлений
+- Персистентное состояние (тема, токен) — через `persist` middleware с `localStorage`
+
+```typescript
+// Пример с persist
+export const useThemeStore = create<ThemeState>()(
+  persist(
+    (set) => ({ theme: 'light', setTheme: (theme) => set({ theme }) }),
+    { name: 'whisper-theme' }
+  )
+);
+```

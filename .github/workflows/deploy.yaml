@@ -1,0 +1,35 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: build
+        run: |
+          docker build . \
+            --build-arg VITE_GRAPHQL_URL=${{ secrets.VITE_GRAPHQL_URL }} \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t sergeyvolro/frontend
+
+      - name: publish image
+        run: |
+          docker login -u sergeyvolro -p ${{ secrets.DOCKER_HUB_TOKEN }}
+          docker push sergeyvolro/frontend
+
+      - name: update deployment with image digest
+        run: |
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' sergeyvolro/frontend)
+          echo "Using image: $IMAGE_DIGEST"
+
+          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+
+          KUBECONFIG=kubeconfig.yaml kubectl set image deployment/frontend frontend=$IMAGE_DIGEST -n deep-voice
+
+          rm kubeconfig.yaml

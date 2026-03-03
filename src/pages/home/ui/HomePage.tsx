@@ -111,7 +111,7 @@ export function HomePage() {
             <input
               ref={inputRef}
               type="file"
-              accept="audio/*"
+              accept="audio/*,video/*,.m4a,.mp3,.wav,.ogg,.aac,.flac,.mp4,.mov"
               className="hidden"
               onChange={handleFileChange}
             />

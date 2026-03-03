@@ -111,7 +111,8 @@ export function HomePage() {
             <input
               ref={inputRef}
               type="file"
-              accept="*/*"
+              // Пробуем комбинацию MIME-типов и расширений (самый надежный способ)
+              accept=".mp3,audio/mpeg,audio/x-mpeg,audio/mp3,.wav,audio/wav,audio/x-wav,.ogg,audio/ogg,.m4a,audio/x-m4a"
               className="hidden"
               onChange={handleFileChange}
             />

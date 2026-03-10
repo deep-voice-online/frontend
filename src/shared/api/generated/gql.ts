@@ -21,6 +21,7 @@ type Documents = {
     "mutation AuthRegister($data: RegisterRequestGql!) {\n  authRegister(data: $data) {\n    ok\n  }\n}": typeof types.AuthRegisterDocument,
     "query FileGetDownloadLink($data: FileIdRequestGql!) {\n  fileInetDownloadLink(data: $data) {\n    downloadUrl\n    expiresIn\n  }\n}": typeof types.FileGetDownloadLinkDocument,
     "query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}": typeof types.FileGetUserFilesDocument,
+    "mutation TranscribeProcess($data: TranscribeProcessRequestGql!) {\n  transcribeProcess(data: $data) {\n    success\n  }\n}": typeof types.TranscribeProcessDocument,
     "mutation FileInitializeUpload($data: UploadRequestGql!) {\n  fileInitializeUpload(data: $data) {\n    fileId\n    uploadUrl\n    fileKey\n  }\n}": typeof types.FileInitializeUploadDocument,
 };
 const documents: Documents = {
@@ -31,6 +32,7 @@ const documents: Documents = {
     "mutation AuthRegister($data: RegisterRequestGql!) {\n  authRegister(data: $data) {\n    ok\n  }\n}": types.AuthRegisterDocument,
     "query FileGetDownloadLink($data: FileIdRequestGql!) {\n  fileInetDownloadLink(data: $data) {\n    downloadUrl\n    expiresIn\n  }\n}": types.FileGetDownloadLinkDocument,
     "query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}": types.FileGetUserFilesDocument,
+    "mutation TranscribeProcess($data: TranscribeProcessRequestGql!) {\n  transcribeProcess(data: $data) {\n    success\n  }\n}": types.TranscribeProcessDocument,
     "mutation FileInitializeUpload($data: UploadRequestGql!) {\n  fileInitializeUpload(data: $data) {\n    fileId\n    uploadUrl\n    fileKey\n  }\n}": types.FileInitializeUploadDocument,
 };
 
@@ -76,6 +78,10 @@ export function gql(source: "query FileGetDownloadLink($data: FileIdRequestGql!)
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}"): (typeof documents)["query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "mutation TranscribeProcess($data: TranscribeProcessRequestGql!) {\n  transcribeProcess(data: $data) {\n    success\n  }\n}"): (typeof documents)["mutation TranscribeProcess($data: TranscribeProcessRequestGql!) {\n  transcribeProcess(data: $data) {\n    success\n  }\n}"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

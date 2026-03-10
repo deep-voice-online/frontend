@@ -1,0 +1,5 @@
+mutation TranscribeProcess($data: TranscribeProcessRequestGql!) {
+  transcribeProcess(data: $data) {
+    success
+  }
+}

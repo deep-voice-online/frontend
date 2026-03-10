@@ -1,4 +1,9 @@
 import { useCallback } from 'react';
+import { gqlClient } from '@/shared/api/graphql-client';
+import {
+  FileGetDownloadLinkDocument,
+  TranscribeProcessDocument,
+} from '@/shared/api/generated/graphql';
 import { useFileInitializeUpload } from '../api/use-file-initialize-upload';
 import { uploadFileToS3 } from '../lib/upload-to-s3';
 
@@ -13,13 +18,24 @@ export function useFileUpload() {
         fileSize: file.size,
       });
 
-      const { fileInitializeUpload } = result as { fileInitializeUpload: { uploadUrl: string; fileId: string } };
+      const { fileInitializeUpload } = result as {
+        fileInitializeUpload: { uploadUrl: string; fileId: string };
+      };
 
       await uploadFileToS3(
         file,
         fileInitializeUpload.uploadUrl,
         file.type || 'application/octet-stream'
       );
+
+      const { fileInetDownloadLink } = (await gqlClient.request(
+        FileGetDownloadLinkDocument,
+        { data: { fileId: fileInitializeUpload.fileId } }
+      )) as { fileInetDownloadLink: { downloadUrl: string } };
+
+      await gqlClient.request(TranscribeProcessDocument, {
+        data: { downloadUrl: fileInetDownloadLink.downloadUrl },
+      });
 
       return { fileId: fileInitializeUpload.fileId };
     },

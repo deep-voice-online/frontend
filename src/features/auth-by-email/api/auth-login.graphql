@@ -1,0 +1,6 @@
+mutation AuthLogin($data: LoginRequestGql!) {
+  authLogin(data: $data) {
+    accessToken
+    refreshToken
+  }
+}

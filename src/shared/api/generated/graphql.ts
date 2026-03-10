@@ -1,4 +1,5 @@
 /* eslint-disable */
+import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -13,11 +14,13 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
+  DateTime: { input: any; output: any; }
 };
 
 export type ConfirmRegisterRequestGql = {
-  code: Scalars['Float']['input'];
   email: Scalars['String']['input'];
+  otp: Scalars['Float']['input'];
 };
 
 export type DownloadLinkResponseGql = {
@@ -26,15 +29,11 @@ export type DownloadLinkResponseGql = {
   expiresIn: Scalars['Float']['output'];
 };
 
-export type FileIdRequestGql = {
-  fileId: Scalars['String']['input'];
-};
-
-export type FileInfoGql = {
-  __typename?: 'FileInfoGql';
+export type FileGql = {
+  __typename?: 'FileGql';
   contentType: Scalars['String']['output'];
   /** ISO дата создания */
-  createdAt: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
   fileKey: Scalars['String']['output'];
   id: Scalars['String']['output'];
   originalName: Scalars['String']['output'];
@@ -44,9 +43,18 @@ export type FileInfoGql = {
   userId: Scalars['String']['output'];
 };
 
+export type FileIdRequestGql = {
+  fileId: Scalars['String']['input'];
+};
+
+export type FileInfoGql = {
+  __typename?: 'FileInfoGql';
+  file: FileGql;
+};
+
 export type FileListResponseGql = {
   __typename?: 'FileListResponseGql';
-  files: Array<FileInfoGql>;
+  files: Array<FileGql>;
 };
 
 export type JwtResponseGql = {
@@ -65,9 +73,10 @@ export type Mutation = {
   authConfirmRegister: JwtResponseGql;
   authLogin: JwtResponseGql;
   authLogout: SuccessResponseGql;
-  authRefresh: JwtResponseGql;
+  authRefreshAccessToken: RefreshAccessTokenResponseGql;
   authRegister: SuccessResponseGql;
   fileInitializeUpload: UploadResponseGql;
+  transcribeProcess: TranscribeProcessResponseGql;
 };
 
 
@@ -90,11 +99,17 @@ export type MutationFileInitializeUploadArgs = {
   data: UploadRequestGql;
 };
 
+
+export type MutationTranscribeProcessArgs = {
+  data: TranscribeProcessRequestGql;
+};
+
 export type Query = {
   __typename?: 'Query';
   fileGetFileInfo: FileInfoGql;
   fileGetUserFiles: FileListResponseGql;
   fileInetDownloadLink: DownloadLinkResponseGql;
+  getTokens: Scalars['String']['output'];
   ping: Scalars['String']['output'];
 };
 
@@ -104,13 +119,13 @@ export type QueryFileGetFileInfoArgs = {
 };
 
 
-export type QueryFileGetUserFilesArgs = {
-  data: UserFileRequestGql;
-};
-
-
 export type QueryFileInetDownloadLinkArgs = {
   data: FileIdRequestGql;
+};
+
+export type RefreshAccessTokenResponseGql = {
+  __typename?: 'RefreshAccessTokenResponseGql';
+  accessToken: Scalars['String']['output'];
 };
 
 export type RegisterRequestGql = {
@@ -123,11 +138,19 @@ export type SuccessResponseGql = {
   ok: Scalars['Boolean']['output'];
 };
 
+export type TranscribeProcessRequestGql = {
+  downloadUrl: Scalars['String']['input'];
+};
+
+export type TranscribeProcessResponseGql = {
+  __typename?: 'TranscribeProcessResponseGql';
+  success: Scalars['Boolean']['output'];
+};
+
 export type UploadRequestGql = {
   contentType: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
   fileSize: Scalars['Float']['input'];
-  userId: Scalars['String']['input'];
 };
 
 export type UploadResponseGql = {
@@ -137,6 +160,40 @@ export type UploadResponseGql = {
   uploadUrl: Scalars['String']['output'];
 };
 
-export type UserFileRequestGql = {
-  userId: Scalars['String']['input'];
-};
+export type AuthConfirmRegisterMutationVariables = Exact<{
+  data: ConfirmRegisterRequestGql;
+}>;
+
+
+export type AuthConfirmRegisterMutation = { __typename?: 'Mutation', authConfirmRegister: { __typename?: 'JwtResponseGql', accessToken: string, refreshToken: string } };
+
+export type AuthLoginMutationVariables = Exact<{
+  data: LoginRequestGql;
+}>;
+
+
+export type AuthLoginMutation = { __typename?: 'Mutation', authLogin: { __typename?: 'JwtResponseGql', accessToken: string, refreshToken: string } };
+
+export type AuthLogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AuthLogoutMutation = { __typename?: 'Mutation', authLogout: { __typename?: 'SuccessResponseGql', ok: boolean } };
+
+export type AuthRefreshAccessTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AuthRefreshAccessTokenMutation = { __typename?: 'Mutation', authRefreshAccessToken: { __typename?: 'RefreshAccessTokenResponseGql', accessToken: string } };
+
+export type AuthRegisterMutationVariables = Exact<{
+  data: RegisterRequestGql;
+}>;
+
+
+export type AuthRegisterMutation = { __typename?: 'Mutation', authRegister: { __typename?: 'SuccessResponseGql', ok: boolean } };
+
+
+export const AuthConfirmRegisterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AuthConfirmRegister"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ConfirmRegisterRequestGql"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authConfirmRegister"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<AuthConfirmRegisterMutation, AuthConfirmRegisterMutationVariables>;
+export const AuthLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AuthLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"LoginRequestGql"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}},{"kind":"Field","name":{"kind":"Name","value":"refreshToken"}}]}}]}}]} as unknown as DocumentNode<AuthLoginMutation, AuthLoginMutationVariables>;
+export const AuthLogoutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AuthLogout"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authLogout"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}}]}}]}}]} as unknown as DocumentNode<AuthLogoutMutation, AuthLogoutMutationVariables>;
+export const AuthRefreshAccessTokenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AuthRefreshAccessToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authRefreshAccessToken"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accessToken"}}]}}]}}]} as unknown as DocumentNode<AuthRefreshAccessTokenMutation, AuthRefreshAccessTokenMutationVariables>;
+export const AuthRegisterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AuthRegister"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RegisterRequestGql"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authRegister"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}}]}}]}}]} as unknown as DocumentNode<AuthRegisterMutation, AuthRegisterMutationVariables>;

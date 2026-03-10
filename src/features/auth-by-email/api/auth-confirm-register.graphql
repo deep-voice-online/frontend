@@ -1,0 +1,6 @@
+mutation AuthConfirmRegister($data: ConfirmRegisterRequestGql!) {
+  authConfirmRegister(data: $data) {
+    accessToken
+    refreshToken
+  }
+}

@@ -1,10 +1,17 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import { HomePage } from './pages/home';
+import { setAuthTokenGetter } from '@/shared/api/graphql-client';
+import { useAuthStore } from '@/entities/session';
+import { AppProviders } from './app/providers';
+import { AppRouter } from './app/router';
+
+setAuthTokenGetter(() => useAuthStore.getState().accessToken);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <HomePage />
+    <AppProviders>
+      <AppRouter />
+    </AppProviders>
   </StrictMode>
 );

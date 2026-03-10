@@ -1,0 +1,5 @@
+mutation AuthRegister($data: RegisterRequestGql!) {
+  authRegister(data: $data) {
+    ok
+  }
+}

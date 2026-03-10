@@ -19,6 +19,9 @@ type Documents = {
     "mutation AuthLogout {\n  authLogout {\n    ok\n  }\n}": typeof types.AuthLogoutDocument,
     "mutation AuthRefreshAccessToken {\n  authRefreshAccessToken {\n    accessToken\n  }\n}": typeof types.AuthRefreshAccessTokenDocument,
     "mutation AuthRegister($data: RegisterRequestGql!) {\n  authRegister(data: $data) {\n    ok\n  }\n}": typeof types.AuthRegisterDocument,
+    "query FileGetDownloadLink($data: FileIdRequestGql!) {\n  fileInetDownloadLink(data: $data) {\n    downloadUrl\n    expiresIn\n  }\n}": typeof types.FileGetDownloadLinkDocument,
+    "query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}": typeof types.FileGetUserFilesDocument,
+    "mutation FileInitializeUpload($data: UploadRequestGql!) {\n  fileInitializeUpload(data: $data) {\n    fileId\n    uploadUrl\n    fileKey\n  }\n}": typeof types.FileInitializeUploadDocument,
 };
 const documents: Documents = {
     "mutation AuthConfirmRegister($data: ConfirmRegisterRequestGql!) {\n  authConfirmRegister(data: $data) {\n    accessToken\n    refreshToken\n  }\n}": types.AuthConfirmRegisterDocument,
@@ -26,6 +29,9 @@ const documents: Documents = {
     "mutation AuthLogout {\n  authLogout {\n    ok\n  }\n}": types.AuthLogoutDocument,
     "mutation AuthRefreshAccessToken {\n  authRefreshAccessToken {\n    accessToken\n  }\n}": types.AuthRefreshAccessTokenDocument,
     "mutation AuthRegister($data: RegisterRequestGql!) {\n  authRegister(data: $data) {\n    ok\n  }\n}": types.AuthRegisterDocument,
+    "query FileGetDownloadLink($data: FileIdRequestGql!) {\n  fileInetDownloadLink(data: $data) {\n    downloadUrl\n    expiresIn\n  }\n}": types.FileGetDownloadLinkDocument,
+    "query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}": types.FileGetUserFilesDocument,
+    "mutation FileInitializeUpload($data: UploadRequestGql!) {\n  fileInitializeUpload(data: $data) {\n    fileId\n    uploadUrl\n    fileKey\n  }\n}": types.FileInitializeUploadDocument,
 };
 
 /**
@@ -62,6 +68,18 @@ export function gql(source: "mutation AuthRefreshAccessToken {\n  authRefreshAcc
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "mutation AuthRegister($data: RegisterRequestGql!) {\n  authRegister(data: $data) {\n    ok\n  }\n}"): (typeof documents)["mutation AuthRegister($data: RegisterRequestGql!) {\n  authRegister(data: $data) {\n    ok\n  }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "query FileGetDownloadLink($data: FileIdRequestGql!) {\n  fileInetDownloadLink(data: $data) {\n    downloadUrl\n    expiresIn\n  }\n}"): (typeof documents)["query FileGetDownloadLink($data: FileIdRequestGql!) {\n  fileInetDownloadLink(data: $data) {\n    downloadUrl\n    expiresIn\n  }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}"): (typeof documents)["query FileGetUserFiles {\n  fileGetUserFiles {\n    files {\n      id\n      originalName\n      contentType\n      size\n      status\n      createdAt\n    }\n  }\n}"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "mutation FileInitializeUpload($data: UploadRequestGql!) {\n  fileInitializeUpload(data: $data) {\n    fileId\n    uploadUrl\n    fileKey\n  }\n}"): (typeof documents)["mutation FileInitializeUpload($data: UploadRequestGql!) {\n  fileInitializeUpload(data: $data) {\n    fileId\n    uploadUrl\n    fileKey\n  }\n}"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

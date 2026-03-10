@@ -1,0 +1,6 @@
+query FileGetDownloadLink($data: FileIdRequestGql!) {
+  fileInetDownloadLink(data: $data) {
+    downloadUrl
+    expiresIn
+  }
+}

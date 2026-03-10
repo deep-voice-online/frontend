@@ -1,0 +1,12 @@
+query FileGetUserFiles {
+  fileGetUserFiles {
+    files {
+      id
+      originalName
+      contentType
+      size
+      status
+      createdAt
+    }
+  }
+}

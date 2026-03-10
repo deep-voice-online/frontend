@@ -1,0 +1,7 @@
+mutation FileInitializeUpload($data: UploadRequestGql!) {
+  fileInitializeUpload(data: $data) {
+    fileId
+    uploadUrl
+    fileKey
+  }
+}

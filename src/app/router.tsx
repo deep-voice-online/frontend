@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { AuthPage } from '@/pages/auth';
 import { HomePage } from '@/pages/home';
+import { FilesPage } from '@/pages/files';
 import { useAuthStore } from '@/entities/session';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <HomePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/files',
+    element: (
+      <ProtectedRoute>
+        <FilesPage />
       </ProtectedRoute>
     ),
   },

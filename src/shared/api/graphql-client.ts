@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import type { RequestDocument, Variables } from 'graphql-request';
 
 const baseClient = new GraphQLClient(
-  import.meta.env.VITE_GRAPHQL_URL ?? 'https://gql.deep-voice.online/',
+  (import.meta.env.VITE_GRAPHQL_URL || '').trim() || 'https://gql.deep-voice.online/',
   { credentials: 'include' }
 );
 

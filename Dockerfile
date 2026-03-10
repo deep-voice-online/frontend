@@ -5,7 +5,7 @@ RUN npm ci
 COPY . .
 ARG VITE_GRAPHQL_URL=https://gql.deep-voice.online/
 ARG VITE_API_URL=https://api.deep-voice.online/
-ARG VITE_WS_URL=wss://api.deep-voice.online
+ARG VITE_WS_URL=wss://deep-voice.online
 ENV VITE_GRAPHQL_URL=$VITE_GRAPHQL_URL
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_WS_URL=$VITE_WS_URL
